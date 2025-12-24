@@ -1,0 +1,44 @@
+# ============================================
+# ImageStreams - Store built images
+# ============================================
+# PURPOSE: ImageStreams track container images built by OpenShift
+# WHY: 
+#   - Acts as a local registry for your built images
+#   - Deployments reference ImageStreams, not external registries
+#   - Enables automatic redeployment when new images are built
+# ============================================
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: event-scheduling-frontend
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: frontend
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: event-scheduling-backend
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: backend
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: event-scheduling-postgres
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: database
+spec:
+  lookupPolicy:
+    local: true

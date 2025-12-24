@@ -1,0 +1,95 @@
+# ============================================
+# BuildConfigs - Build images from GitHub source
+# ============================================
+# PURPOSE: Defines how to build container images from source code
+# WHY:
+#   - Pulls source code from GitHub repository
+#   - Builds Docker images using your Dockerfiles
+#   - Pushes built images to ImageStreams
+#   - Shows GitHub URL in OpenShift console (required for assignment)
+# GIT REPOSITORY: https://github.com/MohamedAshrafFCAICU/event-scheduling
+# ============================================
+
+# Frontend BuildConfig
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: event-scheduling-frontend-build
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: frontend
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/MohamedAshrafFCAICU/event-scheduling.git
+      ref: main
+    contextDir: Frontend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: event-scheduling-frontend:latest
+  triggers:
+    - type: ConfigChange
+
+# Backend BuildConfig
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: event-scheduling-backend-build
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: backend
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/MohamedAshrafFCAICU/event-scheduling.git
+      ref: main
+    contextDir: Backend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile.backend
+  output:
+    to:
+      kind: ImageStreamTag
+      name: event-scheduling-backend:latest
+  triggers:
+    - type: ConfigChange
+
+# Database BuildConfig
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: event-scheduling-postgres-build
+  namespace: mohamedashraf2004-cr-dev
+  labels:
+    app: event-scheduling
+    component: database
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/MohamedAshrafFCAICU/event-scheduling.git
+      ref: main
+    contextDir: Backend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile.postgres
+  output:
+    to:
+      kind: ImageStreamTag
+      name: event-scheduling-postgres:latest
+  triggers:
+    - type: ConfigChange
