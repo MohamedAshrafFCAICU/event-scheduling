@@ -1,0 +1,60 @@
+# ============================================
+# STEP 12: OpenShift Routes
+# ============================================
+# PURPOSE: Exposes services externally with HTTPS URLs
+# WHY ROUTES vs INGRESS:
+#   - Routes are OpenShift-specific (more features than Ingress)
+#   - Automatic TLS termination with edge certificates
+#   - Integrated with OpenShift's router
+# TLS TERMINATION: "edge" means:
+#   - HTTPS terminates at the router
+#   - Traffic inside cluster is HTTP (faster)
+#   - Automatic redirect from HTTP to HTTPS
+# URL FORMAT: <route-name>-<namespace>.apps.<cluster-domain>
+# ============================================
+
+# Frontend Route - Main application entry point
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: event-scheduling-frontend
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: frontend
+spec:
+  # Leave host empty - OpenShift will generate one
+  # Format: event-scheduling-frontend-<namespace>.apps.<cluster>
+  to:
+    kind: Service
+    name: event-scheduling-frontend
+    weight: 100
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+# Backend Route - Direct API access (optional, for testing)
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: event-scheduling-backend
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: backend
+spec:
+  to:
+    kind: Service
+    name: event-scheduling-backend
+    weight: 100
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

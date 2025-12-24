@@ -1,0 +1,95 @@
+# ============================================
+# STEP 10: Frontend Deployment
+# ============================================
+# PURPOSE: Deploys the Angular frontend with nginx
+# WHY:
+#   - Serves the Angular static files
+#   - Proxies /api/* requests to the backend
+# OPENSHIFT CONSIDERATIONS:
+#   - Uses nginx-unprivileged image (runs on port 8080, not 80)
+#   - OpenShift requires non-root containers
+#   - Custom nginx config mounted from ConfigMap
+# IMAGE: Using nginxinc/nginx-unprivileged because:
+#   1. Runs as non-root user (required by OpenShift)
+#   2. Listens on port 8080 instead of 80
+#   3. No permission issues with /var/cache/nginx
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-scheduling-frontend
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-scheduling
+      component: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: event-scheduling
+        component: frontend
+    spec:
+      # Init container to copy static files to a shared volume
+      initContainers:
+        - name: copy-static-files
+          image: docker.io/mohamedashraffahmy/event-scheduling-frontend:latest
+          imagePullPolicy: Always
+          command: ['sh', '-c', 'cp -r /usr/share/nginx/html/* /app/']
+          volumeMounts:
+            - name: static-files
+              mountPath: /app
+      containers:
+        - name: frontend
+          # Using nginx-unprivileged for OpenShift compatibility
+          image: docker.io/nginxinc/nginx-unprivileged:alpine
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            # Mount the static files from init container
+            - name: static-files
+              mountPath: /usr/share/nginx/html
+            # Mount custom nginx config
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: static-files
+          emptyDir: {}
+        - name: nginx-config
+          configMap:
+            name: nginx-config

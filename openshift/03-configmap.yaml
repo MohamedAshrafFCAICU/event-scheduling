@@ -1,0 +1,30 @@
+# ============================================
+# STEP 3: ConfigMap for Application Configuration
+# ============================================
+# PURPOSE: Stores non-sensitive configuration data
+# WHY: ConfigMaps allow you to decouple configuration from container images,
+#      making your application portable across different environments.
+# DIFFERENCE FROM SECRETS: ConfigMaps are for non-sensitive data (ports, hosts)
+#                          Secrets are for sensitive data (passwords, keys)
+# ============================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-scheduling-config
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+data:
+  # Server configuration
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOST: "0.0.0.0"
+  # Database connection (host refers to the Kubernetes service name)
+  DB_HOST: "event-scheduling-db"
+  DB_PORT: "5432"
+  DB_NAME: "event_scheduling_db"
+  # JWT configuration
+  JWT_EXPIRES_IN: "24h"
+  JWT_REFRESH_EXPIRES_IN: "7d"
+  # Security
+  BCRYPT_ROUNDS: "10"

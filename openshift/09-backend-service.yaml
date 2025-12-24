@@ -1,0 +1,28 @@
+# ============================================
+# STEP 9: Backend Service
+# ============================================
+# PURPOSE: Creates a stable network endpoint for the backend API
+# WHY:
+#   - Frontend nginx proxies /api/* requests to this service
+#   - Service name "event-scheduling-backend" is used in nginx config
+# TYPE: ClusterIP - internal access only
+#       The frontend handles external traffic and proxies to backend
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-scheduling-backend
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: event-scheduling
+    component: backend
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP

@@ -1,0 +1,100 @@
+# ============================================
+# STEP 6: Database Deployment
+# ============================================
+# PURPOSE: Deploys PostgreSQL database container
+# WHY DEPLOYMENT vs POD: 
+#   - Deployment manages pod lifecycle (restarts, updates, scaling)
+#   - Provides rolling updates and rollback capabilities
+# KEY OPENSHIFT CONSIDERATIONS:
+#   - PGDATA set to subdirectory to avoid permission issues
+#   - OpenShift runs containers as random non-root UID
+#   - Using your DockerHub image directly
+# REPLICAS: 1 for database (stateful workload)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-scheduling-db
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-scheduling
+      component: database
+  strategy:
+    type: Recreate  # Not RollingUpdate - only one DB instance should access storage
+  template:
+    metadata:
+      labels:
+        app: event-scheduling
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          # Using your DockerHub image
+          image: docker.io/mohamedashraffahmy/event-scheduling-postgres:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          env:
+            # CRITICAL: PGDATA must be a subdirectory of the mount point
+            # This avoids "directory not empty" errors on OpenShift
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            # Database credentials from secret
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: event-scheduling-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: event-scheduling-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: event-scheduling-db-secret
+                  key: POSTGRES_DB
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Liveness probe - restarts container if unhealthy
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Readiness probe - removes from service if not ready
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: event-scheduling-db-pvc

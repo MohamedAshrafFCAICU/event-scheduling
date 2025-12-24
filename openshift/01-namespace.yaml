@@ -1,0 +1,15 @@
+# ============================================
+# STEP 1: Namespace (Project) Definition
+# ============================================
+# PURPOSE: Creates an isolated environment for your application
+# WHY: OpenShift uses namespaces to separate different applications/teams
+# NOTE: On shared OpenShift clusters (like Developer Sandbox), you may not have
+#       permission to create namespaces. In that case, use your assigned project.
+# ============================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: event-scheduling
+  labels:
+    app: event-scheduling
+    environment: production

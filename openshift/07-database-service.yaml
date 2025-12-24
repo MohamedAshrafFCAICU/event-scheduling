@@ -1,0 +1,30 @@
+# ============================================
+# STEP 7: Database Service
+# ============================================
+# PURPOSE: Creates a stable network endpoint for the database
+# WHY SERVICES:
+#   - Pods have dynamic IPs that change on restart
+#   - Services provide a stable DNS name and IP
+#   - Other pods connect using service name: "event-scheduling-db"
+# TYPE: ClusterIP (default) - only accessible within the cluster
+#       This is correct for databases - they shouldn't be exposed externally
+# PORT MAPPING: Service port 5432 -> Container port 5432
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-scheduling-db
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: database
+spec:
+  type: ClusterIP
+  selector:
+    app: event-scheduling
+    component: database
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      protocol: TCP

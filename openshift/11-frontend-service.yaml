@@ -1,0 +1,27 @@
+# ============================================
+# STEP 11: Frontend Service
+# ============================================
+# PURPOSE: Creates a stable network endpoint for the frontend
+# WHY:
+#   - Routes need a service to expose externally
+#   - Internal pods can also access frontend via this service
+# PORT: 8080 (nginx-unprivileged default port)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-scheduling-frontend
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: event-scheduling
+    component: frontend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

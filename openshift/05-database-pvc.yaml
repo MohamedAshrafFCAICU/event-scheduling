@@ -1,0 +1,26 @@
+# ============================================
+# STEP 5: Persistent Volume Claim for Database
+# ============================================
+# PURPOSE: Requests persistent storage for PostgreSQL data
+# WHY: 
+#   - Containers are ephemeral - when a pod restarts, data is lost
+#   - PVC ensures database data survives pod restarts/rescheduling
+#   - OpenShift dynamically provisions storage based on this claim
+# STORAGE CLASS: Uses default storage class (usually gp2 on AWS, standard on others)
+# SIZE: 1Gi is sufficient for development; increase for production
+# ACCESS MODE: ReadWriteOnce means only one pod can mount it at a time
+# ============================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: event-scheduling-db-pvc
+  namespace: event-scheduling
+  labels:
+    app: event-scheduling
+    component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
