@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: event-scheduling-frontend
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: frontend
@@ -42,7 +42,7 @@ spec:
       # Init container to copy static files to a shared volume
       initContainers:
         - name: copy-static-files
-          image: docker.io/mohamedashraffahmy/event-scheduling-frontend:latest
+          image: docker.io/mohamedashraffahmy/event-scheduling-frontend:v2
           imagePullPolicy: Always
           command: ['sh', '-c', 'cp -r /usr/share/nginx/html/* /app/']
           volumeMounts:

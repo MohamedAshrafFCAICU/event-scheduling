@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: event-scheduling
+  name: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     environment: production

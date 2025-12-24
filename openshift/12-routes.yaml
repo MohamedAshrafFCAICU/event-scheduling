@@ -19,7 +19,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: event-scheduling-frontend
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: frontend
@@ -43,7 +43,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: event-scheduling-backend
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: backend

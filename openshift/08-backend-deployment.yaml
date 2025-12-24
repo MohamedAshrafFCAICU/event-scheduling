@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: event-scheduling-backend
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: backend

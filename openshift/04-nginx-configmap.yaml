@@ -14,7 +14,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-config
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: frontend

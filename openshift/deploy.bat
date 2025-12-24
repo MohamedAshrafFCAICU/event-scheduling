@@ -27,14 +27,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [1/8] Creating namespace (or switching to existing project)...
-oc apply -f 01-namespace.yaml 2>nul || oc project event-scheduling 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo WARNING: Could not create namespace. You may need to use your assigned project.
-    echo Please update the namespace in all YAML files to match your project name.
-    set /p PROJECT_NAME="Enter your project name: "
-    oc project %PROJECT_NAME%
-)
+echo [1/8] Switching to your project...
+oc project mohamedashraf2004-cr-dev
 echo.
 
 echo [2/8] Creating secrets...

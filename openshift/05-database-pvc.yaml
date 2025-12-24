@@ -14,7 +14,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: event-scheduling-db-pvc
-  namespace: event-scheduling
+  namespace: mohamedashraf2004-cr-dev
   labels:
     app: event-scheduling
     component: database
