@@ -1,0 +1,51 @@
+<nav class="navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-content">
+      <!-- Logo/Brand -->
+      <div class="navbar-brand-custom">
+        <div class="brand-icon">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <span class="brand-text">EventPlanner</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="navbar-nav-custom">
+        <a
+          [routerLink]="['/events']"
+          class="nav-link-custom"
+          [class.active]="activeTab === 'organized'"
+          (click)="setActiveTab('organized')">
+          <i class="fa-solid fa-calendar-days me-2"></i>
+          Organized Events
+        </a>
+
+        <a
+          [routerLink]="['/events/invited']"
+          class="nav-link-custom"
+          [class.active]="activeTab === 'invited'"
+          (click)="setActiveTab('invited')">
+          <i class="fa-solid fa-envelope-open-text me-2"></i>
+          Invited Events
+        </a>
+      </div>
+
+      <!-- Right Side Actions -->
+      <div class="navbar-actions">
+        <!-- Create Event Button -->
+        <button
+          class="btn-icon btn-create-event"
+          (click)="onCreateEventClick()"
+          title="Create New Event">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <!-- Logout Button -->
+        <button class="btn-logout" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket me-2"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>

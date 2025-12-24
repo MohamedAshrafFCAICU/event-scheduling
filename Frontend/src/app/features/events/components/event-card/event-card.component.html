@@ -1,0 +1,67 @@
+<article class="event-card" (click)="onCardClick($event)">
+  <!-- Header -->
+  <header class="event-header">
+    <div class="event-status" [ngClass]="getStatusClass()">
+      {{ event.status }}
+    </div>
+
+    <div class="event-actions">
+      <button class="btn-actions" type="button" (click)="toggleActions($event)">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+
+      <div class="actions-dropdown" *ngIf="showActions" (click)="$event.stopPropagation()">
+        <button class="action-item" (click)="onViewParticipants($event)">
+          <i class="fas fa-users"></i> View Participants
+        </button>
+
+        <button 
+          class="action-item" 
+          (click)="onCreateInvitation($event)"
+          *ngIf="event.status !== 'Cancelled'">
+          <i class="fas fa-envelope"></i> Create Invitation
+        </button>
+
+        <button 
+          class="action-item action-delete" 
+          (click)="onDelete($event)"
+          *ngIf="event.status !== 'Cancelled'">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="event-content">
+    <h3 class="event-title">{{ event.title }}</h3>
+
+    <p class="event-description" [title]="event.description">
+      {{ event.description }}
+    </p>
+
+    <div class="event-details">
+      <div class="event-detail-item">
+        <i class="far fa-calendar-alt"></i>
+        <span>{{ formatDate(event.date) }}</span>
+      </div>
+
+      <div class="event-detail-item">
+        <i class="far fa-clock"></i>
+        <span>{{ event.time }}</span>
+      </div>
+
+      <div class="event-detail-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>{{ event.location }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="event-footer">
+    <div class="event-date-small">
+      Created: {{ formatDate(event.createdAt || event.date) }}
+    </div>
+  </footer>
+</article>

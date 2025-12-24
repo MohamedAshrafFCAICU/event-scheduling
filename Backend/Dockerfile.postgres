@@ -1,0 +1,33 @@
+FROM postgres:16-alpine
+
+
+LABEL maintainer="Mohamed Ashraf | Ahmed Kamel | Omar Hatem | Anas Mahmoud"
+LABEL description="Event Scheduling System - PostgreSQL 16 Database"
+LABEL version="16.0"
+
+
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=event_scheduling_db
+
+
+COPY docker-entrypoint.sh /docker-entrypoint-initdb.d/01-init.sh
+COPY src/database/init.sql /docker-entrypoint-initdb.d/02-schema.sql
+
+
+USER root
+RUN chmod +x /docker-entrypoint-initdb.d/01-init.sh && \
+    sed -i 's/\r$//' /docker-entrypoint-initdb.d/01-init.sh
+
+
+USER postgres
+
+
+EXPOSE 5432
+
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD pg_isready -U postgres -d event_scheduling_db || exit 1
+
+
+CMD ["postgres"]

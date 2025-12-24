@@ -1,0 +1,262 @@
+<app-navbar (createEventClick)="openCreateEventModal()"></app-navbar>
+
+<section class="invited-events-page">
+  <header class="page-header">
+    <div>
+      <h1>
+        <i class="fa-solid fa-envelope-open-text"></i>
+        Invited Events
+      </h1>
+      <p class="page-subtitle">
+        Review your invitations and let the organizers know if you can make it.
+      </p>
+    </div>
+    <button class="btn-refresh" (click)="fetchInvitedEvents()" [disabled]="loading">
+      <i class="fa-solid fa-rotate" [class.spinning]="loading"></i>
+      {{ loading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </header>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fa-solid fa-circle-check"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ error }}
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-bar">
+      <i class="fa-solid fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Search events by keyword..." [(ngModel)]="searchQuery"
+        (input)="onSearchChange()" />
+    </div>
+
+    <!-- Filters Row -->
+    <div class="filters-container">
+      <div class="filter-group">
+        <label for="date" class="filter-label">
+          <i class="fa-solid fa-calendar"></i> Date
+        </label>
+        <input type="date" id="date" class="filter-input" [(ngModel)]="searchFilters.date"
+          (change)="onFilterChange()" />
+      </div>
+
+      <div class="filter-group">
+        <label for="eventStatus" class="filter-label">
+          <i class="fa-solid fa-tag"></i> Event Status
+        </label>
+        <select id="eventStatus" class="filter-select" [(ngModel)]="searchFilters.eventStatus"
+          (change)="onFilterChange()">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Cancelled">Cancelled</option>
+          <option value="Postponed">Postponed</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="userStatus" class="filter-label">
+          <i class="fa-solid fa-check-circle"></i> My Response
+        </label>
+        <select id="userStatus" class="filter-select" [(ngModel)]="searchFilters.userStatus"
+          (change)="onFilterChange()">
+          <option value="">All Responses</option>
+          <option value="Pending">Pending</option>
+          <option value="Going">Going</option>
+          <option value="Maybe">Maybe</option>
+          <option value="NotGoing">Not Going</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="role" class="filter-label">
+          <i class="fa-solid fa-user-tag"></i> Role
+        </label>
+        <select id="role" class="filter-select" [(ngModel)]="searchFilters.role" (change)="onFilterChange()">
+          <option value="">All Roles</option>
+          <option value="Collaborator">Collaborator</option>
+          <option value="Attendee">Attendee</option>
+        </select>
+      </div>
+
+      <div class="filter-group filter-actions">
+        <button class="btn-clear-filters" (click)="clearFilters()" title="Clear all filters">
+          <i class="fa-solid fa-times"></i> Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your invitations...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredEvents.length > 0" class="invited-grid">
+    <article class="invited-card" *ngFor="let event of filteredEvents">
+      <header class="card-header">
+        <div>
+          <h2>{{ event.title }}</h2>
+          <p class="card-description">{{ event.description }}</p>
+        </div>
+        <!-- Use participantStatus instead of event status -->
+        <span class="status-chip" [ngClass]="getParticipantStatusClass(event)">
+          {{ event.participantStatus || event.status || 'Pending' }}
+        </span>
+      </header>
+
+      <div class="card-details">
+        <div class="detail-item">
+          <i class="fa-solid fa-calendar-day"></i>
+          <div>
+            <label>Date</label>
+            <p>{{ formatDate(event.date) }}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <label>Time</label>
+            <p>{{ event.time }}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <label>Location</label>
+            <p>{{ event.location }}</p>
+          </div>
+        </div>
+        <!-- Add role display -->
+        <div class="detail-item" *ngIf="event.participantRole">
+          <i class="fa-solid fa-user-tag"></i>
+          <div>
+            <label>Your Role</label>
+            <p>{{ event.participantRole }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="hasResponded(event.id)" class="response-badge">
+        You responded: <strong>{{ getResponseLabel(respondedStatus[event.id]) }}</strong>
+      </div>
+
+      <!-- Only show response buttons if event status is not Cancelled -->
+      <div class="response-actions" *ngIf="event.status !== EventStatus.CANCELLED">
+        <button type="button" class="btn-response btn-going" (click)="onRespond(event.id, ResponseStatus.GOING)"
+          [disabled]="respondingEventId === event.id">
+          <i class="fa-solid fa-circle-check"></i>
+          Going
+        </button>
+
+        <button type="button" class="btn-response btn-maybe" (click)="onRespond(event.id, ResponseStatus.MAYBE)"
+          [disabled]="respondingEventId === event.id">
+          <i class="fa-solid fa-circle-question"></i>
+          Maybe
+        </button>
+
+        <button type="button" class="btn-response btn-not-going" (click)="onRespond(event.id, ResponseStatus.NOT_GOING)"
+          [disabled]="respondingEventId === event.id">
+          <i class="fa-solid fa-circle-xmark"></i>
+          Not Going
+        </button>
+      </div>
+
+      <!-- Optional: Show a message when event is cancelled -->
+      <div class="cancelled-message" *ngIf="event.status === EventStatus.CANCELLED">
+        <i class="fa-solid fa-ban"></i>
+        This event has been cancelled by the organizer
+      </div>
+    </article>
+  </div>
+
+  <div *ngIf="!loading && filteredEvents.length === 0" class="empty-state">
+    <i class="fa-solid fa-envelope-circle-check"></i>
+    <h3>{{ searchQuery || searchFilters.date || searchFilters.eventStatus || searchFilters.userStatus ||
+      searchFilters.role ? 'No events found' : 'No invitations yet' }}</h3>
+    <p>{{ searchQuery || searchFilters.date || searchFilters.eventStatus || searchFilters.userStatus ||
+      searchFilters.role ? 'Try different filters.' : 'When someone invites you to an event, it will show up here.' }}
+    </p>
+  </div>
+</section>
+
+<!-- Create Event Modal -->
+<div class="modal-overlay" *ngIf="showCreateEventModal" (click)="closeCreateEventModal()">
+  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fa-solid fa-calendar-plus"></i>
+        Create New Event
+      </h2>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="createEventError" class="alert alert-error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <strong>{{ createEventError }}</strong>
+          <ul *ngIf="validationErrors.length > 0" class="validation-errors">
+            <li *ngFor="let err of validationErrors">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onCreateEvent()" #eventForm="ngForm">
+        <div class="form-group">
+          <label for="title">
+            <i class="fa-solid fa-heading"></i> Event Title
+          </label>
+          <input type="text" id="title" class="form-control" [(ngModel)]="newEvent.title" name="title"
+            placeholder="Enter event title" (input)="clearErrors()" required />
+        </div>
+
+        <div class="form-group">
+          <label for="description">
+            <i class="fa-solid fa-align-left"></i> Description
+          </label>
+          <textarea id="description" class="form-control" [(ngModel)]="newEvent.description" name="description"
+            placeholder="Enter event description" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="date">
+            <i class="fa-solid fa-calendar"></i> Date
+          </label>
+          <input type="text" id="date" class="form-control" [(ngModel)]="newEvent.date" name="date"
+            placeholder="YYYY-MM-DD" (input)="clearErrors()" required />
+          <small class="form-hint">Format: YYYY-MM-DD</small>
+        </div>
+
+        <div class="form-group">
+          <label for="time">
+            <i class="fa-solid fa-clock"></i> Time
+          </label>
+          <input type="text" id="time" class="form-control" [(ngModel)]="newEvent.time" name="time"
+            placeholder="HH:MM:SS" (input)="clearErrors()" required />
+          <small class="form-hint">Format: HH:MM:SS (24-hour)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="location">
+            <i class="fa-solid fa-location-dot"></i> Location
+          </label>
+          <input type="text" id="location" class="form-control" [(ngModel)]="newEvent.location" name="location"
+            placeholder="Enter event location" required />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeCreateEventModal()">
+            <i class="fa-solid fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="!eventForm.valid || creatingEvent">
+            <i class="fa-solid fa-check"></i> {{ creatingEvent ? 'Creating...' : 'Create Event' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

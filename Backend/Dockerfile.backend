@@ -1,0 +1,39 @@
+FROM node:20-alpine
+
+
+LABEL maintainer="Mohamed Ashraf | Ahmed Kamel | Omar Hatem | Anas Mahmoud"
+LABEL description="Event Scheduling System - Node.js Backend"
+LABEL version="1.0.0"
+
+RUN apk add --no-cache bash curl
+
+
+WORKDIR /app
+
+
+COPY package*.json ./
+
+
+RUN npm ci --omit=dev && \
+    npm cache clean --force
+
+
+COPY . .
+
+
+RUN addgroup -g 1001 nodeuser && \
+    adduser -D -u 1001 -G nodeuser nodeuser && \
+    chown -R nodeuser:nodeuser /app
+
+
+USER nodeuser
+
+
+EXPOSE 3000
+
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+
+CMD ["node", "server.js"]

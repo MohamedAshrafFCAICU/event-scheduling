@@ -1,0 +1,113 @@
+<div class="login-wrapper">
+    <!-- Animated Background -->
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-12 col-md-10 col-lg-6 col-xl-5">
+
+                <!-- Main Card -->
+                <div class="login-card">
+
+                    <!-- Header Section -->
+                    <div class="login-header">
+                        <div class="logo-wrapper">
+                            <div class="logo-circle">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                        </div>
+                        <h1 class="login-title">Welcome Back</h1>
+                        <p class="login-subtitle">Sign in to continue to EventPlanner</p>
+                    </div>
+
+                    <!-- Form Section -->
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email" class="form-input"
+                                [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                                [class.is-valid]="loginForm.get('email')?.valid && loginForm.get('email')?.touched"
+                                formControlName="email" placeholder="your.email@example.com" autocomplete="email">
+                            <div class="error-message"
+                                *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+                                <span *ngIf="loginForm.get('email')?.errors?.['email']">Invalid email format</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input [type]="showPassword ? 'text' : 'password'" class="form-input"
+                                    [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                                    [class.is-valid]="loginForm.get('password')?.valid && loginForm.get('password')?.touched"
+                                    formControlName="password" placeholder="Enter your password"
+                                    autocomplete="current-password">
+                                <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                                    <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                </button>
+                            </div>
+                            <div class="error-message"
+                                *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is
+                                    required</span>
+                            </div>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div class="alert alert-success" *ngIf="successMessage">
+                            <i class="fas fa-check-circle"></i>
+                            {{ successMessage }}
+                        </div>
+
+                        <!-- Error Message -->
+                        <div class="alert alert-error" *ngIf="errorMessage">
+                            <i class="fas fa-times-circle"></i>
+                            {{ errorMessage }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-submit" [disabled]="loading" [class.loading]="loading">
+                            <span *ngIf="!loading">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In
+                            </span>
+                            <span *ngIf="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Signing In...
+                            </span>
+                        </button>
+
+                    </form>
+
+                    <!-- Footer -->
+                    <div class="login-footer">
+                        <p>
+                            Don't have an account?
+                            <a routerLink="/signup" class="signup-link">
+                                Create one now
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+podman build -t event-scheduling-postgres:latest -f Backend/Dockerfile.postgres Backend/
+
+podman build -t event-scheduling-backend:latest -f Backend/Dockerfile.backend Backend/
+
+podman build -t event-scheduling-frontend:latest -f Frontend/Dockerfile Frontend/
+
+podman tag event-scheduling-postgres:latest docker.io/mohamedashraffahmy/event-scheduling-postgres:latest
+
+podman tag event-scheduling-backend:latest docker.io/mohamedashraffahmy/event-scheduling-backend:latest
+
+podman tag event-scheduling-frontend:latest docker.io/mohamedashraffahmy/event-scheduling-frontend:latest
+
+podman push docker.io/mohamedashraffahmy/event-scheduling-postgres:latest
+
+podman push docker.io/mohamedashraffahmy/event-scheduling-backend:latest
+
+podman push docker.io/mohamedashraffahmy/event-scheduling-frontend:latest
+
+podman-compose -f podman-compose.yml up -d
+
+podman-compose -f podman-compose.yml down

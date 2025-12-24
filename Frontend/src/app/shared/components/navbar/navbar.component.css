@@ -1,0 +1,181 @@
+.navbar-custom {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Brand */
+.navbar-brand-custom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.brand-icon i {
+  font-size: 1.25rem;
+  color: white;
+}
+
+.brand-text {
+  letter-spacing: 0.5px;
+}
+
+/* Navigation Links */
+.navbar-nav-custom {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-link-custom {
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.nav-link-custom:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.nav-link-custom.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Actions */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Icon Button */
+.btn-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.btn-icon i {
+  font-size: 1.125rem;
+}
+
+.btn-create-event {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.btn-create-event:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  transform: scale(1.1) rotate(90deg);
+}
+
+/* Logout Button */
+.btn-logout {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.btn-logout:hover {
+  background: rgba(255, 71, 87, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .navbar-custom {
+    padding: 1rem;
+  }
+
+  .navbar-content {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .navbar-nav-custom {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .brand-text {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-link-custom {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-logout {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+}

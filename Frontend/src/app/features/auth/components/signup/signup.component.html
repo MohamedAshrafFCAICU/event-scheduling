@@ -1,0 +1,219 @@
+<div class="signup-wrapper">
+    <!-- Animated Background -->
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+
+                <!-- Main Card -->
+                <div class="signup-card">
+
+                    <!-- Header Section -->
+                    <div class="signup-header">
+                        <div class="logo-wrapper">
+                            <div class="logo-circle">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                        </div>
+                        <h1 class="signup-title">Create Account</h1>
+                        <p class="signup-subtitle">Join EventPlanner and start organizing amazing events</p>
+                    </div>
+
+                    <!-- Form Section -->
+                    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+
+                        <!-- Name Fields Row -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    First Name
+                                </label>
+                                <input type="text" class="form-input"
+                                    [class.is-invalid]="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched"
+                                    [class.is-valid]="signupForm.get('firstName')?.valid && signupForm.get('firstName')?.touched"
+                                    formControlName="firstName" placeholder="John">
+                                <div class="error-message"
+                                    *ngIf="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span *ngIf="signupForm.get('firstName')?.errors?.['required']">First name is
+                                        required</span>
+                                    <span *ngIf="signupForm.get('firstName')?.errors?.['invalidName']">Only letters and
+                                        spaces allowed</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Last Name
+                                </label>
+                                <input type="text" class="form-input"
+                                    [class.is-invalid]="signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched"
+                                    [class.is-valid]="signupForm.get('lastName')?.valid && signupForm.get('lastName')?.touched"
+                                    formControlName="lastName" placeholder="Doe">
+                                <div class="error-message"
+                                    *ngIf="signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span *ngIf="signupForm.get('lastName')?.errors?.['required']">Last name is
+                                        required</span>
+                                    <span *ngIf="signupForm.get('lastName')?.errors?.['invalidName']">Only letters and
+                                        spaces allowed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Username Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-at"></i>
+                                Username
+                            </label>
+                            <input type="text" class="form-input"
+                                [class.is-invalid]="signupForm.get('username')?.invalid && signupForm.get('username')?.touched"
+                                [class.is-valid]="signupForm.get('username')?.valid && signupForm.get('username')?.touched"
+                                formControlName="username" placeholder="Choose a unique username">
+                            <div class="error-message"
+                                *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="signupForm.get('username')?.errors?.['required']">Username is
+                                    required</span>
+                                <span *ngIf="signupForm.get('username')?.errors?.['minlength']">At least 3
+                                    characters</span>
+                                <span *ngIf="signupForm.get('username')?.errors?.['invalidUsername']">Only letters,
+                                    numbers, and underscores</span>
+                            </div>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email" class="form-input"
+                                [class.is-invalid]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched"
+                                [class.is-valid]="signupForm.get('email')?.valid && signupForm.get('email')?.touched"
+                                formControlName="email" placeholder="your.email@example.com">
+                            <div class="error-message"
+                                *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="signupForm.get('email')?.errors?.['required']">Email is required</span>
+                                <span *ngIf="signupForm.get('email')?.errors?.['email']">Invalid email format</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input [type]="showPassword ? 'text' : 'password'" class="form-input"
+                                    [class.is-invalid]="signupForm.get('password')?.invalid && signupForm.get('password')?.touched"
+                                    [class.is-valid]="signupForm.get('password')?.valid && signupForm.get('password')?.touched"
+                                    formControlName="password" placeholder="Create a strong password">
+                                <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                                    <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                </button>
+                            </div>
+
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength" *ngIf="signupForm.get('password')?.value">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" [class.weak]="getPasswordStrength() === 'weak'"
+                                        [class.medium]="getPasswordStrength() === 'medium'"
+                                        [class.strong]="getPasswordStrength() === 'strong'"></div>
+                                </div>
+                                <span class="strength-text" [class]="getPasswordStrength()">
+                                    {{ getPasswordStrength() === 'weak' ? 'Weak' : getPasswordStrength() === 'medium' ?
+                                    'Medium' : 'Strong' }}
+                                </span>
+                            </div>
+
+                            <div class="error-message"
+                                *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is
+                                    required</span>
+                                <span *ngIf="signupForm.get('password')?.errors?.['minlength']">At least 8
+                                    characters</span>
+                                <span *ngIf="signupForm.get('password')?.errors?.['weakPassword']">
+                                    Must include uppercase, lowercase, number, and special character ($!%*?&)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Confirm Password
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-input"
+                                    [class.is-invalid]="(signupForm.get('confirmPassword')?.invalid || signupForm.errors?.['passwordMismatch']) && signupForm.get('confirmPassword')?.touched"
+                                    [class.is-valid]="signupForm.get('confirmPassword')?.valid && !signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
+                                    formControlName="confirmPassword" placeholder="Re-enter your password">
+                                <button type="button" class="password-toggle"
+                                    (click)="toggleConfirmPasswordVisibility()">
+                                    <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                </button>
+                            </div>
+                            <div class="error-message"
+                                *ngIf="(signupForm.get('confirmPassword')?.invalid || signupForm.errors?.['passwordMismatch']) && signupForm.get('confirmPassword')?.touched">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span *ngIf="signupForm.get('confirmPassword')?.errors?.['required']">Please confirm
+                                    your password</span>
+                                <span *ngIf="signupForm.errors?.['passwordMismatch']">Passwords do not match</span>
+                            </div>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div class="alert alert-success" *ngIf="successMessage">
+                            <i class="fas fa-check-circle"></i>
+                            {{ successMessage }}
+                        </div>
+
+                        <!-- Error Message -->
+                        <div class="alert alert-error" *ngIf="errorMessage">
+                            <i class="fas fa-times-circle"></i>
+                            {{ errorMessage }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-submit" [disabled]="loading" [class.loading]="loading">
+                            <span *ngIf="!loading">
+                                <i class="fas fa-user-plus"></i>
+                                Create Account
+                            </span>
+                            <span *ngIf="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Creating Account...
+                            </span>
+                        </button>
+
+                    </form>
+
+                    <!-- Footer -->
+                    <div class="signup-footer">
+                        <p>
+                            Already have an account?
+                            <a routerLink="/login" class="login-link">
+                                Sign in here
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

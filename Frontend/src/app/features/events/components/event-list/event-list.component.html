@@ -1,0 +1,266 @@
+<app-navbar (createEventClick)="openCreateEventModal()"></app-navbar>
+
+<!-- Toast Message -->
+<div class="toast-container" *ngIf="showToast" [ngClass]="'toast-' + toastType">
+  <div class="toast-content">
+    <i class="toast-icon" [ngClass]="{
+      'fa-check-circle': toastType === 'success',
+      'fa-exclamation-circle': toastType === 'error',
+      'fa-info-circle': toastType === 'info'
+    }"></i>
+    <span class="toast-message">{{ toastMessage }}</span>
+  </div>
+</div>
+
+<div class="event-list-container">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fa-solid fa-calendar-days"></i> Organized Events
+    </h1>
+  </div>
+
+  <!-- Search and Filters Section -->
+  <div class="search-section">
+    <div class="search-bar">
+      <i class="fa-solid fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Search events by keyword..." [(ngModel)]="searchQuery"
+        (input)="onSearchChange()" />
+    </div>
+
+    <!-- Filters Row -->
+    <div class="filters-container">
+      <!-- UPDATED: Single date filter instead of startDate/endDate -->
+      <div class="filter-group">
+        <label for="date" class="filter-label">
+          <i class="fa-solid fa-calendar"></i> Date
+        </label>
+        <input type="date" id="date" class="filter-input" [(ngModel)]="searchFilters.date"
+          (change)="onFilterChange()" />
+      </div>
+
+      <!-- UPDATED: Changed from 'status' to 'eventStatus' -->
+      <div class="filter-group">
+        <label for="eventStatus" class="filter-label">
+          <i class="fa-solid fa-tag"></i> Event Status
+        </label>
+        <select id="eventStatus" class="filter-select" [(ngModel)]="searchFilters.eventStatus"
+          (change)="onFilterChange()">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Cancelled">Cancelled</option>
+          <option value="Postponed">Postponed</option>
+        </select>
+      </div>
+      
+      <div class="filter-group filter-actions">
+        <button class="btn-clear-filters" (click)="clearFilters()" title="Clear all filters">
+          <i class="fa-solid fa-times"></i> Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading events...</p>
+  </div>
+
+  <!-- Events -->
+  <div *ngIf="!loading" class="events-grid">
+    <app-event-card *ngFor="let event of filteredEvents" [event]="event" (deleteEvent)="onDeleteEvent(event)"
+      (updateStatus)="onUpdateStatus($event)" (viewParticipants)="onViewParticipants(event)"
+      (createInvitation)="onCreateInvitation(event)"></app-event-card>
+  </div>
+
+  <div *ngIf="filteredEvents.length === 0 && !loading" class="empty-state">
+    <p>No events found</p>
+  </div>
+
+  <!-- Refresh Button -->
+  <div class="refresh-section">
+    <button class="btn-refresh" (click)="refreshEvents()" [disabled]="loading" title="Refresh Events">
+      <i class="fa-solid fa-rotate" [class.spinning]="loading"></i>
+      <span>{{ loading ? 'Refreshing...' : 'Refresh Events' }}</span>
+    </button>
+  </div>
+</div>
+
+<!-- Participants Modal -->
+<div class="modal-overlay" *ngIf="showParticipantsModal" (click)="closeParticipantsModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fa-solid fa-users"></i>
+        Participants — {{ activeEventParticipants?.title }}
+      </h2>
+      <button class="btn-close" (click)="closeParticipantsModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Loading State -->
+      <div *ngIf="loadingParticipants" class="loading-participants">
+        <div class="spinner-small"></div>
+        <p>Loading participants...</p>
+      </div>
+
+      <!-- Participants List -->
+      <div *ngIf="!loadingParticipants && participants.length > 0" class="participants-list">
+        <div class="participant-card" *ngFor="let p of participants">
+          <div class="participant-avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="participant-info">
+            <h4 class="participant-name">
+              {{ p.fullName || (p.firstName + ' ' + p.lastName) }}
+            </h4>
+            <p class="participant-role" *ngIf="p.role">
+              <i class="fa-solid fa-user-tag"></i> {{ p.role }}
+            </p>
+            <p class="participant-role" *ngIf="p.username">
+              <i class="fa-solid fa-at"></i> {{ p.username }}
+            </p>
+          </div>
+
+          <div class="participant-status">
+            <span class="status-badge" [ngClass]="'badge-' + ((p.status || '').toLowerCase() || 'pending')">
+              {{ p.status || 'Pending' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <!-- Empty State -->
+      <div *ngIf="!loadingParticipants && participants.length === 0" class="empty-participants">
+        <i class="fa-solid fa-user-slash"></i>
+        <p>No participants yet</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Invitation Modal -->
+<div class="modal-overlay" *ngIf="showInviteModal" (click)="showInviteModal = false">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fa-solid fa-envelope"></i>
+        Create Invitation — {{ invitingEvent?.title }}
+      </h2>
+      <button class="btn-close" (click)="showInviteModal = false"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="sendInvitation()" #inviteForm="ngForm">
+        <div class="form-group">
+          <label for="userId">
+            <i class="fa-solid fa-user"></i> User ID
+          </label>
+          <input type="number" id="userId" class="form-control" [(ngModel)]="inviteUserId" name="userId"
+            placeholder="Enter user ID" required min="1" />
+          <small class="form-text" *ngIf="inviteForm.submitted && !inviteUserId">
+            User ID is required
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="role">
+            <i class="fa-solid fa-user-tag"></i> Role
+          </label>
+          <select id="role" class="form-control" [(ngModel)]="inviteRole" name="role" required>
+            <option value="Attendee">Attendee</option>
+            <option value="Collaborator">Collaborator</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showInviteModal = false">
+            <i class="fa-solid fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="!inviteForm.valid || !inviteUserId">
+            <i class="fa-solid fa-paper-plane"></i> Send Invitation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Create Event Modal -->
+<div class="modal-overlay" *ngIf="showCreateEventModal" (click)="closeCreateEventModal()">
+  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fa-solid fa-calendar-plus"></i>
+        Create New Event
+      </h2>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="createEventError" class="alert alert-error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <strong>{{ createEventError }}</strong>
+          <ul *ngIf="validationErrors.length > 0" class="validation-errors">
+            <li *ngFor="let err of validationErrors">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onCreateEvent()" #eventForm="ngForm">
+        <div class="form-group">
+          <label for="title">
+            <i class="fa-solid fa-heading"></i> Event Title
+          </label>
+          <input type="text" id="title" class="form-control" [(ngModel)]="newEvent.title" name="title"
+            placeholder="Enter event title" (input)="clearErrors()" required />
+        </div>
+
+        <div class="form-group">
+          <label for="description">
+            <i class="fa-solid fa-align-left"></i> Description
+          </label>
+          <textarea id="description" class="form-control" [(ngModel)]="newEvent.description" name="description"
+            placeholder="Enter event description" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="date">
+            <i class="fa-solid fa-calendar"></i> Date
+          </label>
+          <input type="text" id="date" class="form-control" [(ngModel)]="newEvent.date" name="date"
+            placeholder="YYYY-MM-DD" (input)="clearErrors()" required />
+          <small class="form-hint">Format: YYYY-MM-DD</small>
+        </div>
+
+        <div class="form-group">
+          <label for="time">
+            <i class="fa-solid fa-clock"></i> Time
+          </label>
+          <input type="text" id="time" class="form-control" [(ngModel)]="newEvent.time" name="time"
+            placeholder="HH:MM:SS" (input)="clearErrors()" required />
+          <small class="form-hint">Format: HH:MM:SS (24-hour)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="location">
+            <i class="fa-solid fa-location-dot"></i> Location
+          </label>
+          <input type="text" id="location" class="form-control" [(ngModel)]="newEvent.location" name="location"
+            placeholder="Enter event location" required />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeCreateEventModal()">
+            <i class="fa-solid fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="!eventForm.valid || creatingEvent">
+            <i class="fa-solid fa-check"></i> {{ creatingEvent ? 'Creating...' : 'Create Event' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
